@@ -1,37 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AddButton from "../components/AddButton";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
 import { ReactComponent as Back } from "../media/todo-back-button.svg";
 import TaskCard from "../components/TaskCard";
 import AddListItemModal from "../components/Modal/AddListItemModal";
-
-const TaskData = {
-  id: 194,
-  title: "New Activity (EDIT)",
-  created_at: "2021-10-13T03:50:38.000Z",
-  todo_items: [
-    {
-      id: 183,
-      title: "Azaz",
-      activity_group_id: 194,
-      is_active: 1,
-      priority: "very-high",
-    },
-    {
-      id: 136,
-      title: "0092023312423820482301332174 5040",
-      activity_group_id: 194,
-      is_active: 0,
-      priority: "high",
-    },
-  ],
-};
+import EmptyState from "../components/EmptyState";
+import HashLoader from "react-spinners/HashLoader";
+import API from "../API";
 
 const Detail = () => {
-  const [title, setTitle] = useState("NewComment");
+  const [title, setTitle] = useState("");
   const [editText, setEditText] = useState(false);
   const [show, setShow] = useState(false);
+  const [touch, setTouch] = useState(false);
   const [showE, setShowE] = useState(false);
   const { id } = useParams();
   const [editData, setEditData] = useState({
@@ -41,7 +23,24 @@ const Detail = () => {
     is_active: 1,
     priority: "very-high",
   });
-
+  const [loading, setLoading] = useState(true);
+  const [taskData, setTaskData] = useState([]);
+  const [refetch, setRefetch] = useState(0);
+  useEffect(() => {
+    setLoading(true);
+    API.get(`/activity-groups/${id}`)
+      .then((res) => {
+        setTaskData([...res?.data.todo_items]);
+        setTitle(res.data.title);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+      });
+  }, [id, refetch]);
+  const updateTitle = useCallback(() => {
+    API.patch(`/activity-groups/${id}`, { title });
+  }, [title, id]);
   const node = useRef();
 
   const handleClickOutside = (e) => {
@@ -49,9 +48,10 @@ const Detail = () => {
       // inside click
       return;
     }
-    // outside click
+
     setEditText(false);
   };
+
   useEffect(() => {
     if (editText) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -64,6 +64,12 @@ const Detail = () => {
     };
   }, [editText]);
 
+  useEffect(() => {
+    if (!editText && touch) {
+      console.log("masuk");
+      updateTitle();
+    }
+  }, [editText, updateTitle, touch]);
   return (
     <div>
       <div className="flex align-middle justify-between flex-wrap">
@@ -78,9 +84,12 @@ const Detail = () => {
               value={title}
               type="text"
               onBlurCapture={() => {
-                console.log("CAPTUREEE");
+                updateTitle();
               }}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                if (!touch) setTouch(true);
+                setTitle(e.target.value);
+              }}
               className="font-bold text-gray-900 text-4xl bg-transparent focus:outline-none border-b-2 border-gray-900 border-0"
             />
           ) : (
@@ -103,24 +112,37 @@ const Detail = () => {
           </div>
         </div>
         <AddButton onClick={() => setShow(true)} />
-        <AddListItemModal show={show} setShow={setShow} />
+        <AddListItemModal
+          show={show}
+          setShow={setShow}
+          reload={() => setRefetch(refetch + 1)}
+        />
       </div>
       <div className="grid grid-cols-1 gap-3 mt-10">
-        {TaskData?.todo_items?.map((item) => (
-          <TaskCard
-            item={item}
-            key={item.id}
-            onEdit={(data) => {
-              setEditData({ ...data });
-              setShowE(true);
-            }}
-          />
-        ))}
+        {loading ? (
+          <div className="flex justify-center items-center h-96">
+            <HashLoader color="#60A5FA" loading={true} size={150} />
+          </div>
+        ) : taskData?.length === 0 ? (
+          <EmptyState onClick={() => setShow(true)} />
+        ) : (
+          taskData?.map((item) => (
+            <TaskCard
+              item={item}
+              key={item.id}
+              onEdit={(data) => {
+                setEditData({ ...data });
+                setShowE(true);
+              }}
+            />
+          ))
+        )}
         <AddListItemModal
-          editText
+          edit
           data={editData}
           show={showE}
           setShow={setShowE}
+          reload={() => setRefetch(refetch + 1)}
         />
       </div>
     </div>

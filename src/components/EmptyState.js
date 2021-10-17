@@ -1,9 +1,9 @@
 import emptyStateImg from "../media/todo-empty-state.png";
 
-const EmptyState = () => {
+const EmptyState = ({ onClick }) => {
   return (
     <div className="flex justify-center mt-28">
-      <img src={emptyStateImg} alt="Empty" />
+      <img onClick={onClick} src={emptyStateImg} alt="Empty" />
     </div>
   );
 };

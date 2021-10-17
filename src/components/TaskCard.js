@@ -2,11 +2,9 @@ import Indicator from "./Indicator";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
 import { ReactComponent as Delete } from "../media/tabler_trash.svg";
 import { useState } from "react";
-import AddListItemModal from "./Modal/AddListItemModal";
 
 const TaskCard = ({ item, onEdit }) => {
   const [active, setActive] = useState(item.is_active === 1);
-  const [show, setShow] = useState(false);
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between transition-all duration-500 ease-in-out transform hover:scale-105">
@@ -30,11 +28,7 @@ const TaskCard = ({ item, onEdit }) => {
           className="ml-5 cursor-pointer"
           onClick={() =>
             onEdit({
-              id: 183,
-              title: "Azaz",
-              activity_group_id: 194,
-              is_active: 1,
-              priority: "very-high",
+              ...item,
             })
           }
         >
