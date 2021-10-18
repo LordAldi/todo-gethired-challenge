@@ -2,8 +2,8 @@ import Indicator from "./Indicator";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
 import { ReactComponent as Delete } from "../media/tabler_trash.svg";
 import { useState } from "react";
-
-const TaskCard = ({ item, onEdit }) => {
+import API from "../API";
+const TaskCard = ({ item, onEdit, onDelete }) => {
   const [active, setActive] = useState(item.is_active === 1);
 
   return (
@@ -11,7 +11,10 @@ const TaskCard = ({ item, onEdit }) => {
       <div className="flex items-center">
         <input
           checked={!active}
-          onChange={(e) => setActive(!e.target.checked)}
+          onChange={(e) => {
+            setActive(!e.target.checked);
+            API.patch(`/todo-items/${item.id}`, { is_active: !active ? 1 : 0 });
+          }}
           type="checkbox"
           className="form-checkbox rounded-sm text-blue-400 focus:ring-blue-400 h-5 w-5 mr-5"
         />
@@ -35,7 +38,14 @@ const TaskCard = ({ item, onEdit }) => {
           <Edit />
         </div>
       </div>
-      <div className="cursor-pointer">
+      <div
+        className="cursor-pointer  transition-all duration-500 ease-in-out transform hover:scale-110 "
+        onClick={() =>
+          onDelete({
+            ...item,
+          })
+        }
+      >
         <Delete />
       </div>
     </div>

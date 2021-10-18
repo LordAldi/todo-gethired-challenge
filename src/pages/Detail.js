@@ -3,19 +3,37 @@ import { Link, useParams } from "react-router-dom";
 import AddButton from "../components/AddButton";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
 import { ReactComponent as Back } from "../media/todo-back-button.svg";
+import { ReactComponent as Sort } from "../media/tabler_arrows-sort.svg";
+import { ReactComponent as SortI } from "../media/sort-selection-icon.svg";
+import { ReactComponent as SortI1 } from "../media/sort-selection-icon (1).svg";
+import { ReactComponent as SortI2 } from "../media/sort-selection-icon (2).svg";
+import { ReactComponent as SortI3 } from "../media/sort-selection-icon (3).svg";
+import { ReactComponent as SortI4 } from "../media/sort-selection-icon (4).svg";
+import { ReactComponent as Selected } from "../media/sort-selection-selected.svg";
 import TaskCard from "../components/TaskCard";
 import AddListItemModal from "../components/Modal/AddListItemModal";
 import EmptyState from "../components/EmptyState";
 import HashLoader from "react-spinners/HashLoader";
 import API from "../API";
+import DeleteModal from "../components/Modal/DeleteModal";
+import InfoModal from "../components/Modal/InfoModal";
+
+const SortItem = [
+  { Icon: SortI, title: "Terbaru" },
+  { Icon: SortI1, title: "Terlama" },
+  { Icon: SortI4, title: "A-Z" },
+  { Icon: SortI3, title: "Z-A" },
+  { Icon: SortI2, title: "Belum Selesai" },
+];
 
 const Detail = () => {
+  const { id } = useParams();
   const [title, setTitle] = useState("");
   const [editText, setEditText] = useState(false);
   const [show, setShow] = useState(false);
   const [touch, setTouch] = useState(false);
   const [showE, setShowE] = useState(false);
-  const { id } = useParams();
+  const [showI, setShowI] = useState(false);
   const [editData, setEditData] = useState({
     id: 0,
     title: "",
@@ -26,12 +44,16 @@ const Detail = () => {
   const [loading, setLoading] = useState(true);
   const [taskData, setTaskData] = useState([]);
   const [refetch, setRefetch] = useState(0);
+  const [showD, setShowD] = useState(false);
+  const [showS, setShowS] = useState(false);
+  const [sort, setSort] = useState("Terbaru");
   useEffect(() => {
     setLoading(true);
     API.get(`/activity-groups/${id}`)
       .then((res) => {
         setTaskData([...res?.data.todo_items]);
         setTitle(res.data.title);
+        setSort("Terbaru");
         setLoading(false);
       })
       .catch((err) => {
@@ -43,6 +65,31 @@ const Detail = () => {
   }, [title, id]);
   const node = useRef();
 
+  const sortData = (param, n) => {
+    const arr = [...n];
+    if (param === "Terbaru") {
+      arr.sort((a, b) => (a.id === b.id ? 0 : a.id > b.id ? -1 : 1));
+    }
+    if (param === "Terlama") {
+      arr.sort((a, b) => (a.id === b.id ? 0 : a.id < b.id ? -1 : 1));
+    }
+    if (param === "A-Z") {
+      arr.sort((a, b) =>
+        a.title === b.title ? 0 : a.title < b.title ? -1 : 1
+      );
+    }
+    if (param === "Z-A") {
+      arr.sort((a, b) =>
+        a.title === b.title ? 0 : a.title > b.title ? -1 : 1
+      );
+    }
+    if (param === "Belum Selesai") {
+      arr.sort((a, b) =>
+        a.is_active === b.is_active ? 0 : a.is_active > b.is_active ? -1 : 1
+      );
+    }
+    setTaskData([...arr]);
+  };
   const handleClickOutside = (e) => {
     if (node.current.contains(e.target)) {
       // inside click
@@ -66,7 +113,6 @@ const Detail = () => {
 
   useEffect(() => {
     if (!editText && touch) {
-      console.log("masuk");
       updateTitle();
     }
   }, [editText, updateTitle, touch]);
@@ -111,7 +157,36 @@ const Detail = () => {
             <Edit />
           </div>
         </div>
-        <AddButton onClick={() => setShow(true)} />
+        <div className="flex items-center relative ">
+          <button
+            className="border-gray-300 border-2 rounded-full w-14 h-14 flex justify-center items-center mr-4"
+            onClick={() => setShowS(!showS)}
+          >
+            <Sort />
+          </button>
+          {showS && (
+            <div className="absolute top-full left-0 rounded-lg shadow-lg z-10 bg-white w-60">
+              {SortItem.map((item) => (
+                <div
+                  className="cursor-pointer px-5 py-4 border-b-2 border-gray-200 flex justify-between items-center"
+                  key={item.title}
+                  onClick={() => {
+                    setSort(item.title);
+                    sortData(item.title, taskData);
+                  }}
+                >
+                  <div className="flex items-center">
+                    <item.Icon className="mr-3" /> {item.title}
+                  </div>
+                  <div>{sort === item.title && <Selected />}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <AddButton onClick={() => setShow(true)} />
+        </div>
+
         <AddListItemModal
           show={show}
           setShow={setShow}
@@ -134,6 +209,10 @@ const Detail = () => {
                 setEditData({ ...data });
                 setShowE(true);
               }}
+              onDelete={(data) => {
+                setEditData({ ...data });
+                setShowD(true);
+              }}
             />
           ))
         )}
@@ -143,6 +222,21 @@ const Detail = () => {
           show={showE}
           setShow={setShowE}
           reload={() => setRefetch(refetch + 1)}
+        />
+        <DeleteModal
+          show={showD}
+          data={editData}
+          setShow={setShowD}
+          item="Activity"
+          reload={() => {
+            setRefetch(refetch + 1);
+            setShowI(true);
+          }}
+        />
+        <InfoModal
+          show={showI}
+          setShow={setShowI}
+          text="Activity berhasil dihapus"
         />
       </div>
     </div>

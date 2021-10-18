@@ -99,9 +99,9 @@ const AddListItemModal = ({
         <button
           onClick={onSubmit}
           className={`px-10 py-4 ${
-            loading ? "bg-blue-200" : "bg-blue-400"
+            loading || name === "" ? "bg-blue-200" : "bg-blue-400"
           }  rounded-full text-white `}
-          disabled={loading}
+          disabled={loading || name === ""}
         >
           {loading ? (
             <div className="flex justify-center items-center">
