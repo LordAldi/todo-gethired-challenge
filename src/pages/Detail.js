@@ -120,7 +120,7 @@ const Detail = () => {
     <div>
       <div className="flex align-middle justify-between flex-wrap">
         <div className="flex items-center	">
-          <Link to="/">
+          <Link to="/" data-cy="todo-back-button">
             <Back />
           </Link>
 
@@ -144,12 +144,14 @@ const Detail = () => {
               onClick={() => {
                 setEditText(true);
               }}
+              data-cy="todo-title"
             >
               {title}
             </h1>
           )}
           <div
             className="ml-5 cursor-pointer"
+            data-cy="todo-title-edit-button"
             onClick={() => {
               setEditText(true);
             }}
@@ -161,13 +163,18 @@ const Detail = () => {
           <button
             className="border-gray-300 border-2 rounded-full w-14 h-14 flex justify-center items-center mr-4"
             onClick={() => setShowS(!showS)}
+            data-cy="todo-sort-button"
           >
             <Sort />
           </button>
           {showS && (
-            <div className="absolute top-full left-0 rounded-lg shadow-lg z-10 bg-white w-60">
+            <div
+              data-cy="sort-parent"
+              className="absolute top-full left-0 rounded-lg shadow-lg z-10 bg-white w-60"
+            >
               {SortItem.map((item) => (
                 <div
+                  data-cy="sort-selection"
                   className="cursor-pointer px-5 py-4 border-b-2 border-gray-200 flex justify-between items-center"
                   key={item.title}
                   onClick={() => {
@@ -176,15 +183,23 @@ const Detail = () => {
                   }}
                 >
                   <div className="flex items-center">
-                    <item.Icon className="mr-3" /> {item.title}
+                    <item.Icon
+                      className="mr-3"
+                      data-cy="sort-selection-selected"
+                    />
+                    <p data-cy="sort-selection-title">{item.title}</p>
                   </div>
-                  <div>{sort === item.title && <Selected />}</div>
+                  <div>
+                    {sort === item.title && (
+                      <Selected data-cy="sort-selection-selected" />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          <AddButton onClick={() => setShow(true)} />
+          <AddButton onClick={() => setShow(true)} datacy="todo-add-button" />
         </div>
 
         <AddListItemModal

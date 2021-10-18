@@ -6,7 +6,12 @@ const Indicator = ({ priority }) => {
     if (priority === "low") return "bg-blue-600";
     return "bg-purple-600";
   };
-  return <div className={`rounded-full h-3 w-3  ${getColor()}`}></div>;
+  return (
+    <div
+      data-cy="todo-item-priority-indicator"
+      className={`rounded-full h-3 w-3  ${getColor()}`}
+    ></div>
+  );
 };
 
 export default Indicator;

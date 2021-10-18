@@ -57,23 +57,35 @@ const AddListItemModal = ({
     <Modal
       className="max-w-4xl w-4/5 shadow-lg rounded-lg"
       show={show}
+      datacy="modal-add"
       onClose={() => setShow(false)}
     >
       <div className="border-b-2 px-8 py-6 flex justify-between items-center">
-        <h3 className="font-semibold text-lg">
+        <h3 className="font-semibold text-lg" data-cy="modal-add-title">
           {edit ? "Edit" : "Tambah"} List Item
         </h3>
-        <div onClick={() => setShow(false)} className="cursor-pointer">
+
+        <div
+          onClick={() => setShow(false)}
+          className="cursor-pointer"
+          data-cy="modal-add-close-button"
+        >
           <Close />
         </div>
       </div>
       <div className="border-b-2 px-8 pt-10 pb-6">
         <div className=" flex flex-col mb-6">
-          <label className="text-xs font-semibold mb-2">NAMA LIST ITEM</label>
+          <label
+            className="text-xs font-semibold mb-2"
+            data-cy="modal-add-name-title"
+          >
+            NAMA LIST ITEM
+          </label>
           <input
             placeholder="Tambahkan nama list item"
             type="text"
             value={name}
+            data-cy="modal-add-name-input"
             onChange={(e) => {
               setName(e.target.value);
             }}
@@ -81,17 +93,33 @@ const AddListItemModal = ({
           />
         </div>
         <div className=" flex flex-col mb-6">
-          <label className="text-xs font-semibold mb-2">PRIORITY</label>
+          <label
+            className="text-xs font-semibold mb-2"
+            data-cy="modal-add-priority-title"
+          >
+            PRIORITY
+          </label>
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
             className="rounded-md px-4 py-3 text-base focus:ring-blue-400 w-48"
+            data-cy="modal-add-priority-dropdown"
           >
-            <option value="very-high">Very High</option>
-            <option value="high">High</option>
-            <option value="normal">Medium</option>
-            <option value="low">Low</option>
-            <option value="very-low">Very Low</option>
+            <option data-cy="modal-add-priority-item" value="very-high">
+              Very High
+            </option>
+            <option data-cy="modal-add-priority-item" value="high">
+              High
+            </option>
+            <option data-cy="modal-add-priority-item" value="normal">
+              Medium
+            </option>
+            <option data-cy="modal-add-priority-item" value="low">
+              Low
+            </option>
+            <option data-cy="modal-add-priority-item" value="very-low">
+              Very Low
+            </option>
           </select>
         </div>
       </div>
@@ -102,6 +130,7 @@ const AddListItemModal = ({
             loading || name === "" ? "bg-blue-200" : "bg-blue-400"
           }  rounded-full text-white `}
           disabled={loading || name === ""}
+          data-cy="modal-add-save-button"
         >
           {loading ? (
             <div className="flex justify-center items-center">

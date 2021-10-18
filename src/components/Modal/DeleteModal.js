@@ -29,9 +29,13 @@ const DeleteModal = ({
       className="max-w-lg w-4/5 shadow-lg rounded-lg flex flex-col items-center px-6 py-8 md:px-12 md:py-16"
       show={show}
       onClose={() => setShow(false)}
+      datacy="modal-delete"
     >
-      <Delete />
-      <div className="text-lg font-medium text-center mb-12">
+      <Delete data-cy="modal-delete-icon" />
+      <div
+        className="text-lg font-medium text-center mb-12"
+        data-cy="modal-delete-title"
+      >
         <p>Apakah anda yakin menghapus {item} </p>
         <p className="font-bold">"{data.title}"?</p>
       </div>
@@ -39,10 +43,12 @@ const DeleteModal = ({
         <button
           className=" px-6 py-2 md:px-12 md:py-3 bg-gray-200 rounded-full mr-5"
           onClick={() => setShow(false)}
+          data-cy="modal-delete-cancel-button"
         >
           Batal
         </button>
         <button
+          data-cy="modal-delete-confirm-button"
           onClick={() => onDelete()}
           disabled={loading}
           className={`px-6 py-2 md:px-12 md:py-3 ${

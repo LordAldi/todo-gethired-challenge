@@ -7,9 +7,13 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
   const [active, setActive] = useState(item.is_active === 1);
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between transition-all duration-500 ease-in-out transform hover:scale-105">
+    <div
+      className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between transition-all duration-500 ease-in-out transform hover:scale-105"
+      data-cy="todo-item"
+    >
       <div className="flex items-center">
         <input
+          data-cy="todo-item-checkbox"
           checked={!active}
           onChange={(e) => {
             setActive(!e.target.checked);
@@ -24,11 +28,13 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
           className={`text-lg ml-4 break-words truncate ${
             !active && "line-through"
           }`}
+          data-cy="todo-item-title"
         >
           {item.title}
         </p>
         <div
           className="ml-5 cursor-pointer"
+          data-cy="todo-item-edit-button"
           onClick={() =>
             onEdit({
               ...item,
@@ -45,6 +51,7 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
             ...item,
           })
         }
+        data-cy="todo-item-delete-button"
       >
         <Delete />
       </div>

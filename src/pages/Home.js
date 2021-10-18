@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../API";
 import ActivityCard from "../components/ActivityCard";
 import AddButton from "../components/AddButton";
-import EmptyState from "../components/EmptyState";
+import EmptyStateAct from "../components/EmptyStateAct";
 import HashLoader from "react-spinners/HashLoader";
 import DeleteModal from "../components/Modal/DeleteModal";
 import InfoModal from "../components/Modal/InfoModal";
@@ -46,8 +46,16 @@ const Home = () => {
   return (
     <div>
       <div className="flex align-middle justify-between  flex-wrap">
-        <h1 className="font-bold text-gray-900 text-4xl">Activity</h1>
-        <AddButton onClick={() => createActivity()} />
+        <h1
+          className="font-bold text-gray-900 text-4xl"
+          datacy="activity-title"
+        >
+          Activity
+        </h1>
+        <AddButton
+          datacy="activity-add-button"
+          onClick={() => createActivity()}
+        />
       </div>
 
       {loading ? (
@@ -55,7 +63,7 @@ const Home = () => {
           <HashLoader color="#60A5FA" loading={true} size={150} />
         </div>
       ) : task?.length === 0 ? (
-        <EmptyState onClick={() => createActivity()} />
+        <EmptyStateAct onClick={() => createActivity()} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-12">
           {task?.map((t) => (
