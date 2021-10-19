@@ -1,14 +1,20 @@
 import Indicator from "./Indicator";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
 import { ReactComponent as Delete } from "../media/tabler_trash.svg";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import API from "../API";
-const TaskCard = ({ item, onEdit, onDelete }) => {
+import { ModalContext } from "./Modal/modalContext";
+import DeleteModal from "./Modal/DeleteModal";
+import { useParams } from "react-router-dom";
+
+const TaskCard = ({ item }) => {
   const [active, setActive] = useState(item.is_active === 1);
+  const { handleModal } = useContext(ModalContext);
+  const { id } = useParams();
 
   return (
     <div
-      className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between transition-all duration-500 ease-in-out transform hover:scale-105"
+      className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between"
       data-cy="todo-item"
     >
       <div className="flex items-center">
@@ -35,22 +41,20 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
         <div
           className="ml-5 cursor-pointer"
           data-cy="todo-item-edit-button"
-          onClick={() =>
-            onEdit({
-              ...item,
-            })
-          }
+          onClick={() => {}}
         >
           <Edit />
         </div>
       </div>
       <div
-        className="cursor-pointer  transition-all duration-500 ease-in-out transform hover:scale-110 "
-        onClick={() =>
-          onDelete({
-            ...item,
-          })
-        }
+        className="cursor-pointer"
+        onClick={() => {
+          handleModal(
+            <DeleteModal
+              data={{ id: item.id, title: item.title, group_id: id }}
+            />
+          );
+        }}
         data-cy="todo-item-delete-button"
       >
         <Delete />
