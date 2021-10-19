@@ -4,14 +4,17 @@ import { ModalContext } from "./modalContext";
 import InfoModal from "./InfoModal";
 import useFetch from "../useFetch";
 
-const DeleteModal = ({ data, activity = false, onClose, onSuccess }) => {
+const DeleteModal = ({ data, activity = false }) => {
   const [loading, setLoading] = useState(false);
   const { handleModal, setModal } = useContext(ModalContext);
-  const { deleteActivity } = useFetch();
+  const { deleteActivity, deleteTask } = useFetch();
   const onDelete = async () => {
     try {
       setLoading(true);
-      await deleteActivity(data.id);
+      if (activity) await deleteActivity(data.id);
+      else {
+        await deleteTask(data.id, data.group_id);
+      }
       setLoading(false);
       handleModal(<InfoModal text="Activity berhasil dihapus" />);
       setModal(true);

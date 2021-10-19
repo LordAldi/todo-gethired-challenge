@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AddButton from "../components/AddButton";
 import { ReactComponent as Edit } from "../media/todo-item-edit-button.svg";
@@ -14,6 +14,9 @@ import TaskCard from "../components/TaskCard";
 import AddListItemModal from "../components/Modal/AddListItemModal";
 import EmptyState from "../components/EmptyState";
 import API from "../API";
+import { ModalContext } from "../components/Modal/modalContext";
+import useFetch from "../components/useFetch";
+import { ACTIONS, DataContext } from "../components/DataContext";
 
 const SortItem = [
   { Icon: SortI, title: "Terbaru" },
@@ -25,31 +28,21 @@ const SortItem = [
 
 const Detail = () => {
   const { id } = useParams();
-  const [title, setTitle] = useState("");
+  const { dispatch, state } = useContext(DataContext);
+  const { handleModal } = useContext(ModalContext);
+  const { fetchTask } = useFetch();
   const [editText, setEditText] = useState(false);
-  const [show, setShow] = useState(false);
   const [touch, setTouch] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [taskData, setTaskData] = useState([]);
-  const [refetch, setRefetch] = useState(0);
   const [showS, setShowS] = useState(false);
   const [sort, setSort] = useState("Terbaru");
+
   useEffect(() => {
-    setLoading(true);
-    API.get(`/activity-groups/${id}`)
-      .then((res) => {
-        setTaskData([...res?.data.todo_items]);
-        setTitle(res.data.title);
-        setSort("Terbaru");
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  }, [id, refetch]);
+    fetchTask(id);
+  }, [fetchTask, id]);
+
   const updateTitle = useCallback(() => {
-    API.patch(`/activity-groups/${id}`, { title });
-  }, [title, id]);
+    API.patch(`/activity-groups/${id}`, { title: state.title });
+  }, [id, state.title]);
   const node = useRef();
 
   const sortData = (param, n) => {
@@ -75,7 +68,7 @@ const Detail = () => {
         a.is_active === b.is_active ? 0 : a.is_active > b.is_active ? -1 : 1
       );
     }
-    setTaskData([...arr]);
+    dispatch({ type: ACTIONS.SET_TASK, payload: arr });
   };
   const handleClickOutside = (e) => {
     if (node.current.contains(e.target)) {
@@ -89,6 +82,7 @@ const Detail = () => {
   useEffect(() => {
     if (editText) {
       document.addEventListener("mousedown", handleClickOutside);
+      node.current.focus();
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
@@ -111,36 +105,42 @@ const Detail = () => {
             <Back />
           </Link>
 
-          {editText ? (
-            <input
-              ref={node}
-              value={title}
-              type="text"
-              onBlurCapture={() => {
-                updateTitle();
-              }}
-              onChange={(e) => {
-                if (!touch) setTouch(true);
-                setTitle(e.target.value);
-              }}
-              className="font-bold text-gray-900 text-4xl bg-transparent focus:outline-none border-b-2 border-gray-900 border-0"
-            />
-          ) : (
-            <h1
-              className="font-bold text-gray-900 text-4xl"
-              onClick={() => {
-                setEditText(true);
-              }}
-              data-cy="todo-title"
-            >
-              {title}
-            </h1>
-          )}
+          <input
+            ref={node}
+            value={state.title}
+            type="text"
+            onBlurCapture={() => {
+              updateTitle();
+            }}
+            onChange={(e) => {
+              if (!touch) setTouch(true);
+              dispatch({ type: ACTIONS.SET_TITLE, payload: e.target.value });
+            }}
+            className={`${
+              editText ? "block" : "hidden"
+            } font-bold text-gray-900 text-4xl bg-transparent focus:outline-none border-b-2 border-gray-900 border-0`}
+          />
+
+          <h1
+            className={`${
+              !editText ? "block" : "hidden"
+            } font-bold text-gray-900 text-4xl`}
+            onClick={() => {
+              setEditText(true);
+              node.current.focus();
+            }}
+            data-cy="todo-title"
+          >
+            {state.title}
+          </h1>
+
           <div
             className="ml-5 cursor-pointer"
             data-cy="todo-title-edit-button"
             onClick={() => {
               setEditText(true);
+
+              node.current.focus();
             }}
           >
             <Edit />
@@ -166,7 +166,7 @@ const Detail = () => {
                   key={item.title}
                   onClick={() => {
                     setSort(item.title);
-                    sortData(item.title, taskData);
+                    sortData(item.title, [...state.task]);
                   }}
                 >
                   <div className="flex items-center">
@@ -186,22 +186,21 @@ const Detail = () => {
             </div>
           )}
 
-          <AddButton onClick={() => setShow(true)} datacy="todo-add-button" />
+          <AddButton
+            onClick={() => handleModal(<AddListItemModal group_id={id} />)}
+            datacy="todo-add-button"
+          />
         </div>
-
-        <AddListItemModal
-          show={show}
-          setShow={setShow}
-          reload={() => setRefetch(refetch + 1)}
-        />
       </div>
       <div className="grid grid-cols-1 gap-3 mt-10">
-        {loading ? (
+        {state.loading ? (
           <p>Loading...</p>
-        ) : taskData?.length === 0 ? (
-          <EmptyState onClick={() => setShow(true)} />
+        ) : state.task?.length === 0 ? (
+          <EmptyState
+            onClick={() => handleModal(<AddListItemModal group_id={id} />)}
+          />
         ) : (
-          taskData?.map((item) => <TaskCard item={item} key={item.id} />)
+          state.task?.map((item) => <TaskCard item={item} key={item.id} />)
         )}
       </div>
     </div>

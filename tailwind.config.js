@@ -6,6 +6,10 @@ module.exports = {
       fontFamily: {
         Poppins: ["Poppins", "sans-serif"],
       },
+      spacing: {
+        108: "27rem",
+        "4xl": "56rem",
+      },
     },
   },
   variants: {

@@ -5,11 +5,13 @@ export const ACTIONS = {
   SET_TASK: "set_decrease",
   LOADING: "loading",
   UNLOADING: "unloading",
+  SET_TITLE: "set_title",
 };
 const initialState = {
   activity: [],
   task: [],
   loading: false,
+  title: "",
 };
 const reducer = (state, action) => {
   switch (action.type) {
@@ -32,6 +34,11 @@ const reducer = (state, action) => {
       return {
         ...state,
         loading: false,
+      };
+    case ACTIONS.SET_TITLE:
+      return {
+        ...state,
+        title: action.payload,
       };
     default:
       return state;

@@ -11,7 +11,12 @@ const Modal = () => {
         style={{ background: "rgba(0,0,0,0.8)" }}
         onClick={() => setModal(false)}
       >
-        <div onClick={(e) => e.stopPropagation()}>{modalContent}</div>
+        <div
+          className="flex items-center justify-center "
+          onClick={(e) => e.stopPropagation()}
+        >
+          {modalContent}
+        </div>
       </div>,
       document.querySelector("#modal-root")
     );
