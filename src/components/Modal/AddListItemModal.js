@@ -3,7 +3,6 @@ import Modal from "./Modal";
 import { ReactComponent as Close } from "../../media/modal-add-close-button.svg";
 import API from "../../API";
 import { useParams } from "react-router-dom";
-import HashLoader from "react-spinners/HashLoader";
 
 const AddListItemModal = ({
   show,
@@ -132,13 +131,7 @@ const AddListItemModal = ({
           disabled={loading || name === ""}
           data-cy="modal-add-save-button"
         >
-          {loading ? (
-            <div className="flex justify-center items-center">
-              <HashLoader color="#ffffff" loading={true} size={15} />
-            </div>
-          ) : (
-            "Simpan"
-          )}
+          {loading ? <p>Loading...</p> : "Simpan"}
         </button>
       </div>
     </Modal>

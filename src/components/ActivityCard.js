@@ -1,11 +1,15 @@
-import Moment from "react-moment";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as Delete } from "../media/tabler_trash.svg";
-
-const ActivityCard = ({ title, created, id, onDelete }) => {
+import { ModalContext } from "./Modal/modalContext";
+import DeleteModal from "./Modal/DeleteModal";
+import dayjs from "dayjs";
+const ActivityCard = ({ title, created, id }) => {
+  const { handleModal } = useContext(ModalContext);
+  const date = dayjs(created).format("DD MMMM YYYY");
   return (
     <div
-      className="bg-white shadow-lg  rounded-xl h-60 p-6 flex flex-col justify-between transition-all duration-500 ease-in-out transform hover:scale-105"
+      className="bg-white shadow-lg  rounded-xl h-60 p-6 flex flex-col justify-between "
       data-cy="activity-item"
     >
       <Link
@@ -17,13 +21,11 @@ const ActivityCard = ({ title, created, id, onDelete }) => {
         </h1>
       </Link>
       <div className="flex justify-between">
-        <Moment format="DD MMMM YYYY" data-cy="activity-item-date">
-          {created}
-        </Moment>
+        <div data-cy="activity-item-date">{date}</div>
         <div
-          className="cursor-pointer  transition-all duration-500 ease-in-out transform hover:scale-110 "
+          className="cursor-pointer  "
           onClick={() => {
-            onDelete({ id, title });
+            handleModal(<DeleteModal activity data={{ id, title }} />);
           }}
           data-cy="activity-item-delete-button"
         >

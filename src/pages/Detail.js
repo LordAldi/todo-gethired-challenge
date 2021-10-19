@@ -13,10 +13,7 @@ import { ReactComponent as Selected } from "../media/sort-selection-selected.svg
 import TaskCard from "../components/TaskCard";
 import AddListItemModal from "../components/Modal/AddListItemModal";
 import EmptyState from "../components/EmptyState";
-import HashLoader from "react-spinners/HashLoader";
 import API from "../API";
-import DeleteModal from "../components/Modal/DeleteModal";
-import InfoModal from "../components/Modal/InfoModal";
 
 const SortItem = [
   { Icon: SortI, title: "Terbaru" },
@@ -32,19 +29,9 @@ const Detail = () => {
   const [editText, setEditText] = useState(false);
   const [show, setShow] = useState(false);
   const [touch, setTouch] = useState(false);
-  const [showE, setShowE] = useState(false);
-  const [showI, setShowI] = useState(false);
-  const [editData, setEditData] = useState({
-    id: 0,
-    title: "",
-    activity_group_id: id,
-    is_active: 1,
-    priority: "very-high",
-  });
   const [loading, setLoading] = useState(true);
   const [taskData, setTaskData] = useState([]);
   const [refetch, setRefetch] = useState(0);
-  const [showD, setShowD] = useState(false);
   const [showS, setShowS] = useState(false);
   const [sort, setSort] = useState("Terbaru");
   useEffect(() => {
@@ -210,49 +197,12 @@ const Detail = () => {
       </div>
       <div className="grid grid-cols-1 gap-3 mt-10">
         {loading ? (
-          <div className="flex justify-center items-center h-96">
-            <HashLoader color="#60A5FA" loading={true} size={150} />
-          </div>
+          <p>Loading...</p>
         ) : taskData?.length === 0 ? (
           <EmptyState onClick={() => setShow(true)} />
         ) : (
-          taskData?.map((item) => (
-            <TaskCard
-              item={item}
-              key={item.id}
-              onEdit={(data) => {
-                setEditData({ ...data });
-                setShowE(true);
-              }}
-              onDelete={(data) => {
-                setEditData({ ...data });
-                setShowD(true);
-              }}
-            />
-          ))
+          taskData?.map((item) => <TaskCard item={item} key={item.id} />)
         )}
-        <AddListItemModal
-          edit
-          data={editData}
-          show={showE}
-          setShow={setShowE}
-          reload={() => setRefetch(refetch + 1)}
-        />
-        <DeleteModal
-          show={showD}
-          data={editData}
-          setShow={setShowD}
-          item="Activity"
-          reload={() => {
-            setRefetch(refetch + 1);
-            setShowI(true);
-          }}
-        />
-        <InfoModal
-          show={showI}
-          setShow={setShowI}
-          text="Activity berhasil dihapus"
-        />
       </div>
     </div>
   );

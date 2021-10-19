@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { DataProvider } from "./components/DataContext";
+import { ModalProvider } from "./components/Modal/modalContext";
 import Detail from "./pages/Detail";
 import Home from "./pages/Home";
 function App() {
@@ -16,14 +18,18 @@ function App() {
           </div>
         </div>
         <main className="max-w-screen-sm md:max-w-screen-lg mx-auto">
-          <Switch>
-            <Route path="/detail/:id">
-              <Detail />
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
+          <DataProvider>
+            <ModalProvider>
+              <Switch>
+                <Route path="/detail/:id">
+                  <Detail />
+                </Route>
+                <Route path="/">
+                  <Home />
+                </Route>
+              </Switch>
+            </ModalProvider>
+          </DataProvider>
         </main>
       </div>
     </Router>

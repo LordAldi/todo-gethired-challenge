@@ -1,48 +1,18 @@
-import { useEffect, useState } from "react";
-import API from "../API";
+import { useContext, useEffect } from "react";
 import ActivityCard from "../components/ActivityCard";
 import AddButton from "../components/AddButton";
 import EmptyStateAct from "../components/EmptyStateAct";
-import HashLoader from "react-spinners/HashLoader";
-import DeleteModal from "../components/Modal/DeleteModal";
-import InfoModal from "../components/Modal/InfoModal";
+import { DataContext } from "../components/DataContext";
+import useFetch from "../components/useFetch";
 
 const Home = () => {
-  const [task, setTask] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showD, setShowD] = useState(false);
-  const [showI, setShowI] = useState(false);
-  const [refetch, setRefetch] = useState(0);
-  const [idDelete, setIdDelete] = useState({});
+  const { state } = useContext(DataContext);
+  const { fetchActivity, createActivity } = useFetch();
+  console.log(state);
   useEffect(() => {
-    setLoading(true);
-    API.get("/activity-groups")
-      .then((res) => {
-        setTask([...res?.data?.data]);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  }, [refetch]);
+    fetchActivity();
+  }, [fetchActivity]);
 
-  const createActivity = () => {
-    setLoading(true);
-    API.post("/activity-groups", { title: "New Activity" })
-      .then(() => {
-        API.get("/activity-groups")
-          .then((res) => {
-            setTask([...res?.data?.data]);
-            setLoading(false);
-          })
-          .catch((err) => {
-            setLoading(false);
-          });
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  };
   return (
     <div>
       <div className="flex align-middle justify-between  flex-wrap">
@@ -58,44 +28,22 @@ const Home = () => {
         />
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-96">
-          <HashLoader color="#60A5FA" loading={true} size={150} />
-        </div>
-      ) : task?.length === 0 ? (
+      {state.loading ? (
+        <p>Loading...</p>
+      ) : state.activity?.length === 0 ? (
         <EmptyStateAct onClick={() => createActivity()} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-12">
-          {task?.map((t) => (
+          {state.activity?.map((t) => (
             <ActivityCard
               title={t.title}
               key={t.id}
               id={t.id}
               created={t.created_at}
-              onDelete={(data) => {
-                setIdDelete({ ...data });
-                setShowD(true);
-              }}
             />
           ))}
         </div>
       )}
-      <DeleteModal
-        show={showD}
-        data={idDelete}
-        setShow={setShowD}
-        item="List Item"
-        activity
-        reload={() => {
-          setRefetch(refetch + 1);
-          setShowI(true);
-        }}
-      />
-      <InfoModal
-        show={showI}
-        setShow={setShowI}
-        text="Activity berhasil dihapus"
-      />
     </div>
   );
 };

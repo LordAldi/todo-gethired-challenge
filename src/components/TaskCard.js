@@ -8,7 +8,7 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
 
   return (
     <div
-      className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between transition-all duration-500 ease-in-out transform hover:scale-105"
+      className="p-6 bg-white shadow-lg rounded-lg flex items-center justify-between"
       data-cy="todo-item"
     >
       <div className="flex items-center">
@@ -45,7 +45,7 @@ const TaskCard = ({ item, onEdit, onDelete }) => {
         </div>
       </div>
       <div
-        className="cursor-pointer  transition-all duration-500 ease-in-out transform hover:scale-110 "
+        className="cursor-pointer"
         onClick={() =>
           onDelete({
             ...item,
