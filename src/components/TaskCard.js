@@ -5,6 +5,7 @@ import { useContext, useState } from "react";
 import API from "../API";
 import { ModalContext } from "./Modal/modalContext";
 import DeleteModal from "./Modal/DeleteModal";
+import AddListItemModal from "./Modal/AddListItemModal";
 import { useParams } from "react-router-dom";
 
 const TaskCard = ({ item }) => {
@@ -41,7 +42,10 @@ const TaskCard = ({ item }) => {
         <div
           className="ml-5 cursor-pointer"
           data-cy="todo-item-edit-button"
-          onClick={() => {}}
+          onClick={() => {
+            console.log("iet,", item);
+            handleModal(<AddListItemModal data={item} edit />);
+          }}
         >
           <Edit />
         </div>

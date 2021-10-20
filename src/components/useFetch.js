@@ -5,14 +5,13 @@ const baseURL = "https://todo.api.devcode.gethired.id";
 const email = "aldianugra09@gmail.com";
 const addEmail = `?email=${email}`;
 const useFetch = () => {
-  const { dispatch } = useContext(DataContext);
+  const { dispatch, state } = useContext(DataContext);
 
   const fetchActivity = useCallback(async () => {
     try {
       dispatch({ type: ACTIONS.LOADING });
       const data = await fetch(baseURL + "/activity-groups" + addEmail);
       const res = await data.json();
-      console.log(res.data);
       dispatch({ type: ACTIONS.SET_ACTIVITY, payload: [...res?.data] });
       dispatch({ type: ACTIONS.UNLOADING });
     } catch (error) {
@@ -23,14 +22,18 @@ const useFetch = () => {
   const createActivity = async () => {
     try {
       dispatch({ type: ACTIONS.LOADING });
-      await fetch(baseURL + "/activity-groups", {
+      const data = await fetch(baseURL + "/activity-groups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=utf-8",
         },
         body: JSON.stringify({ title: "New Activity", email }),
       });
-      await fetchActivity();
+      const res = await data.json();
+      dispatch({
+        type: ACTIONS.SET_ACTIVITY,
+        payload: [res, ...state.activity],
+      });
       dispatch({ type: ACTIONS.UNLOADING });
     } catch (error) {
       dispatch({ type: ACTIONS.UNLOADING });
@@ -40,7 +43,10 @@ const useFetch = () => {
     await fetch(baseURL + "/activity-groups/" + id + email, {
       method: "DELETE",
     });
-    await fetchActivity();
+    dispatch({
+      type: ACTIONS.SET_ACTIVITY,
+      payload: [...state.activity.filter((act) => act.id !== id)],
+    });
   };
   const fetchTask = useCallback(
     async (id) => {
@@ -48,7 +54,6 @@ const useFetch = () => {
         dispatch({ type: ACTIONS.LOADING });
         const data = await fetch(baseURL + "/activity-groups/" + id);
         const res = await data.json();
-        console.log(res);
         dispatch({ type: ACTIONS.SET_TASK, payload: [...res?.todo_items] });
         dispatch({ type: ACTIONS.SET_TITLE, payload: res?.title });
         dispatch({ type: ACTIONS.UNLOADING });
@@ -59,20 +64,47 @@ const useFetch = () => {
     [dispatch]
   );
   const createTask = async (task) => {
-    await fetch(baseURL + "/todo-items", {
+    const data = await fetch(baseURL + "/todo-items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
       },
       body: JSON.stringify(task),
     });
+    const res = await data.json();
+    console.log(state.task);
+    dispatch({
+      type: ACTIONS.SET_TASK,
+      payload: [{ ...res, is_active: res.is_active ? 1 : 0 }, ...state.task],
+    });
   };
 
-  const deleteTask = async (id, group_id) => {
+  const deleteTask = async (id) => {
     await fetch(baseURL + "/todo-items/" + id, {
       method: "DELETE",
     });
-    await fetchTask(group_id);
+    dispatch({
+      type: ACTIONS.SET_TASK,
+      payload: [...state.task.filter((t) => t.id !== id)],
+    });
+  };
+
+  const editTask = async (task) => {
+    const data = await fetch(baseURL + "/todo-items/" + task.id, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(task),
+    });
+    const res = await data.json();
+    const idx = state.task.findIndex((t) => t.id === res.id);
+    const newA = [...state.task];
+    newA[idx] = res;
+    dispatch({
+      type: ACTIONS.SET_TASK,
+      payload: [...newA],
+    });
   };
   return {
     fetchActivity,
@@ -81,6 +113,7 @@ const useFetch = () => {
     createTask,
     fetchTask,
     deleteTask,
+    editTask,
   };
 };
 

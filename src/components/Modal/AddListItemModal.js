@@ -2,16 +2,25 @@ import React, { useContext, useEffect, useState } from "react";
 import { ReactComponent as Close } from "../../media/modal-add-close-button.svg";
 import { ModalContext } from "./modalContext";
 import useFetch from "../useFetch";
+import Indicator from "../Indicator";
+const options = [
+  { value: "very-high", label: "Very High" },
+  { value: "high", label: "High" },
+  { value: "normal", label: "Medium" },
+  { value: "low", label: "Low" },
+  { value: "very-low", label: "Very" },
+];
 
 const AddListItemModal = ({
   edit = false,
   data = { id: 0, title: "", priority: "very-high" },
   group_id,
 }) => {
-  const { createTask, fetchTask } = useFetch();
+  const { createTask, editTask } = useFetch();
   const [name, setName] = useState("");
   const [priority, setPriority] = useState("very-high");
   const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
   const { setModal } = useContext(ModalContext);
 
   useEffect(() => {
@@ -22,11 +31,16 @@ const AddListItemModal = ({
   }, [data, edit]);
   const onSubmit = async (task) => {
     try {
+      console.log("task", task);
       setLoading(true);
-      await createTask(task);
+      if (edit) {
+        await editTask(task);
+      } else {
+        await createTask(task);
+      }
+
       setLoading(false);
       setModal(false);
-      await fetchTask(group_id);
     } catch (error) {
       setLoading(false);
     }
@@ -75,28 +89,32 @@ const AddListItemModal = ({
           >
             PRIORITY
           </label>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            className="rounded-md px-4 py-3 text-base focus:ring-blue-400 w-48"
-            data-cy="modal-add-priority-dropdown"
-          >
-            <option data-cy="modal-add-priority-item" value="very-high">
-              Very High
-            </option>
-            <option data-cy="modal-add-priority-item" value="high">
-              High
-            </option>
-            <option data-cy="modal-add-priority-item" value="normal">
-              Medium
-            </option>
-            <option data-cy="modal-add-priority-item" value="low">
-              Low
-            </option>
-            <option data-cy="modal-add-priority-item" value="very-low">
-              Very Low
-            </option>
-          </select>
+          <div className="relative">
+            <button
+              className="flex justify-start items-center rounded-md px-4 py-3 text-base focus:ring-blue-400  w-48 border-2"
+              data-cy="modal-add-priority-dropdown"
+              onClick={() => setShow(!show)}
+            >
+              <Indicator priority={priority} className="mr-3" /> {priority}
+            </button>
+
+            <div className={`${show ? "absolute" : "hidden"} bg-white`}>
+              {options.map((opt) => (
+                <div
+                  data-cy="modal-add-priority-item"
+                  className="flex justify-start items-center  px-4 py-3 text-base focus:ring-blue-400  w-48 border-2 m-0"
+                  key={opt.value}
+                  onClick={() => {
+                    setPriority(opt.value);
+                    setShow(false);
+                  }}
+                >
+                  <Indicator priority={opt.value} className="mr-3" />
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <div className="px-10 py-4 flex justify-end">
@@ -108,6 +126,7 @@ const AddListItemModal = ({
           data-cy="modal-add-save-button"
           onClick={() =>
             onSubmit({
+              ...data,
               activity_group_id: group_id,
               title: name,
               priority: priority,

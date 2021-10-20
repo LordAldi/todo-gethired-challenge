@@ -8,7 +8,6 @@ import useFetch from "../components/useFetch";
 const Home = () => {
   const { state } = useContext(DataContext);
   const { fetchActivity, createActivity } = useFetch();
-  console.log(state);
   useEffect(() => {
     fetchActivity();
   }, [fetchActivity]);
@@ -18,7 +17,7 @@ const Home = () => {
       <div className="flex align-middle justify-between  flex-wrap">
         <h1
           className="font-bold text-gray-900 text-4xl"
-          datacy="activity-title"
+          data-cy="activity-title"
         >
           Activity
         </h1>
